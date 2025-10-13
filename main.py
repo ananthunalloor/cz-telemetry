@@ -1,14 +1,21 @@
-from kivy.app import runTouchApp
-from kivy.lang import Builder
+import matplotlib.pyplot as plt
+from kivy_garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+
+plt.plot([1, 23, 2, 4])
+plt.ylabel("some numbers")
+
+
+class MyApp(App):
+    def build(self):
+        box = BoxLayout()
+        box.add_widget(FigureCanvasKivyAgg(plt.gcf()))
+        return box
 
 
 def main():
-    runTouchApp(
-        Builder.load_string("""
-Button:
-    text: 'Hello world with uv!'
-""")
-    )
+    MyApp().run()
 
 
 if __name__ == "__main__":
