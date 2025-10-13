@@ -20,6 +20,12 @@ project-excludes = [
     "**/*venv/**/*",
 ]
 
+[tool.uv.workspace]
+members = [
+    "telemetry",
+    "ui",
+]
+
 [dependency-groups]
 dev = [
     "ruff>=0.14.0",
