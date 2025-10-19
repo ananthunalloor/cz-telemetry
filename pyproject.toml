@@ -5,9 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "kivy-garden-matplotlib>=0.1.1.dev0",
-    "kivy[full]>=2.3.1",
     "matplotlib>=3.10.7",
+    "pyqt6>=6.9.1",
+    "pyserial>=3.5",
 ]
 
 [tool]
@@ -22,7 +22,6 @@ project-excludes = [
 
 [tool.uv.workspace]
 members = [
-    "telemetry",
     "ui",
 ]
 
