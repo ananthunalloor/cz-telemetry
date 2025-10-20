@@ -1,0 +1,17 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [
+        "en-gb",
+        "en_US",
+        "softwareTerms",
+        "python"
+    ],
+    "words": [
+        "calcsize",
+        "levelname"
+    ],
+    "ignoreWords": [],
+    "import": []
+}

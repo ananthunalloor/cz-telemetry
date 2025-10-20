@@ -1,5 +1,9 @@
+from PyQt6.QtGui import QFont
+from src.telemetry import Telemetry
+from PyQt6.QtGui import QCloseEvent
 import logging
-
+from PyQt6 import QtCore
+from typing import Optional
 
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QCheckBox
@@ -43,29 +47,32 @@ class MainWindow(QMainWindow):
     # Custom signal for communication between widgets
     data_updated = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, telemetry: Telemetry):
         super().__init__()
         logger.info("Initializing MainWindow")
-
-        logging.info("fjkjdfjdl")
         self.setWindowTitle("CZ Telemetry")
-        self.setGeometry(100, 100, 600, 200)
-        # self.setGeometry(100, 100, 1600, 900)
+        # self.setGeometry(100, 100, 600, 200)
+        self.setGeometry(100, 100, 1600, 900)
         self.status_bar = self.statusBar()
+        self.telemetry = telemetry
+        self.received_data: Optional[dict] = None
 
         # Initialize UI components
         self._create_menu_bar()
         self._create_toolbar()
         self._create_status_bar()
         self._create_central_widget()
-        logger.info("Initializing MainWindow")
 
         # Connect signals
         self.data_updated.connect(self._on_data_updated)
+        self.telemetry.telemetry.connect(self.on_new_telemetry)
 
         # Set initial status
         if self.status_bar is not None:
             self.status_bar.showMessage("Ready")
+
+        self._refresh_timer = QtCore.QTimer(self)
+        self._refresh_timer.start(100)
 
     def _create_menu_bar(self):
         """Create the main menu bar with actions"""
@@ -132,6 +139,10 @@ class MainWindow(QMainWindow):
         """Create the main content area"""
         widget = QWidget()
 
+        self.temperature = QLabel("0.0 V")
+        self.pressure = QLabel("0.0 V")
+        self.altitude = QLabel("0.0 V")
+
         outerLayout = QVBoxLayout()
         outerLayout.setSpacing(0)
         outerLayout.setContentsMargins(5, 0, 5, 0)
@@ -162,10 +173,17 @@ class MainWindow(QMainWindow):
         dgridlayout.setSpacing(0)
         dgridlayout.setContentsMargins(0, 0, 0, 0)
 
-        dgridlayout.addWidget(Color("pink"), 0, 0, 2, 1)
-        dgridlayout.addWidget(Color("limegreen"), 1, 1)
-        dgridlayout.addWidget(Color("magenta"), 2, 2)
-        dgridlayout.addWidget(Color("blue"), 3, 0)
+        dgridlayout.addWidget(self.temperature, 1, 0)
+        dgridlayout.addWidget(self.pressure, 2, 0)
+        dgridlayout.addWidget(self.altitude, 3, 0)
+
+        dgridlayout.addWidget(Color("red"), 1, 1)
+        dgridlayout.addWidget(Color("yellow"), 2, 1)
+        dgridlayout.addWidget(Color("cyan"), 3, 1)
+
+        dgridlayout.addWidget(Color("green"), 1, 2)
+        dgridlayout.addWidget(Color("grey"), 2, 2)
+        dgridlayout.addWidget(Color("orange"), 3, 2)
 
         dgrid.setLayout(dgridlayout)
 
@@ -181,6 +199,15 @@ class MainWindow(QMainWindow):
 
         widget.setLayout(outerLayout)
         self.setCentralWidget(widget)
+
+    @QtCore.pyqtSlot(dict)
+    def on_new_telemetry(self, telemetry: dict):
+        # logger.info("Received Temp: %s", telemetry["temperature"])
+        self.received_data = telemetry
+        self.temperature.setText(str(telemetry["temperature"]))
+        self.pressure.setText(str(telemetry["pressure"]))
+        self.altitude.setText(str(telemetry["altitude"]))
+        # self.my_label_2.setText(str(telemetry["temperature"]))
 
     def _button_clicked(self):
         # """Handle main button click"""
@@ -202,7 +229,8 @@ class MainWindow(QMainWindow):
         # QMessageBox.about(self, "About", "Qt6 Python App Template\n\nA basic PyQt6 application template.")
         pass
 
-    def closeEvent(self, event):
+    # pyrefly: ignore[bad-param-name-override]
+    def closeEvent(self, event: QCloseEvent):
         """Handle window closing"""
         logging.info("Stopping CZ Telemetry application")
         event.accept()
