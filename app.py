@@ -1,15 +1,16 @@
-from src.telemetry import Telemetry
-from src.ui import MainWindow
 import sys
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QApplication
+
+from src.telemetry.telemetry import Telemetry
+from src.ui.ui import MainWindow
 
 
 def main():
     logger.info("Starting CZ Telemetry application")
 
     app = QApplication([])
-    telemetry = Telemetry(port="COM15")
+    telemetry = Telemetry(port="COM15", fake=True)
 
     thread = QThread()
     telemetry.moveToThread(thread)

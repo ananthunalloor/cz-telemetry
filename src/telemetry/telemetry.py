@@ -24,15 +24,34 @@ class Telemetry(QtCore.QObject):
     telemetry = QtCore.pyqtSignal(dict)
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, port: str, baud: int = 115200, timeout: float = 1.0):
+    def __init__(
+        self, port: str, baud: int = 115200, timeout: float = 1.0, fake: bool = False
+    ):
         super().__init__()
         logger.info("Initializing Telemetry")
 
         self.port = port
         self.baud = baud
         self.timeout = timeout
+        self.fake = fake
         self._running = False
         self._ser: Optional[serial.Serial] = None
+
+    def fake_data(self):
+        import random
+
+        logger.info("Starting fake data generation")
+        while self._running:
+            telemetry = {
+                "header": 0xABCD,
+                "timestamp": int(time.time()),
+                "temperature": random.uniform(20.0, 25.0),
+                "pressure": random.uniform(1000.0, 1020.0),
+                "altitude": random.uniform(100.0, 120.0),
+                "crc": 0,
+            }
+            self.telemetry.emit(telemetry)
+            time.sleep(1.0)
 
     def _compute_checksum(self, packet_bytes: bytes) -> int:
         return sum(packet_bytes[:-1]) & 0xFF
@@ -53,6 +72,12 @@ class Telemetry(QtCore.QObject):
         return bytes(buf)
 
     def run(self):
+        if self.fake:
+            self._running = True
+            self.fake_data()
+            self.finished.emit()
+            return
+
         try:
             self._ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
             self._running = True
@@ -146,6 +171,3 @@ class Telemetry(QtCore.QObject):
                 logger.info("Closed serial port")
         except Exception as e:
             logger.error("Failed to Closed serial port: %s", e)
-
-
-()

@@ -1,5 +1,4 @@
 from PyQt6.QtGui import QFont
-from src.telemetry import Telemetry
 from PyQt6.QtGui import QCloseEvent
 import logging
 from PyQt6 import QtCore
@@ -29,6 +28,8 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtGui import QAction
 
 from PyQt6.QtGui import QColor, QPalette
+
+from src.telemetry import Telemetry
 
 logger = logging.getLogger(__name__)
 
