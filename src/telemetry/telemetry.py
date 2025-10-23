@@ -41,13 +41,21 @@ class Telemetry(QtCore.QObject):
         import random
 
         logger.info("Starting fake data generation")
+        alt = 0.0
+        lon = 180.0
+        lat = 90.0
         while self._running:
+            alt += random.uniform(1.0, 2.0)
+            lon += random.uniform(0, 0.0001)
+            lat += random.uniform(0, 0.0001)
             telemetry = {
                 "header": 0xABCD,
                 "timestamp": int(time.time()),
                 "temperature": random.uniform(20.0, 25.0),
                 "pressure": random.uniform(1000.0, 1020.0),
-                "altitude": random.uniform(100.0, 120.0),
+                "altitude": alt,
+                "longitude": lon,
+                "latitude": lat,
                 "crc": 0,
             }
             self.telemetry.emit(telemetry)

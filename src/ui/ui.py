@@ -3,6 +3,8 @@ from PyQt6.QtGui import QCloseEvent
 import logging
 from PyQt6 import QtCore
 from typing import Optional
+import numpy as np
+import math
 
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QCheckBox
@@ -27,9 +29,14 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtGui import QAction
 
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
 from PyQt6.QtGui import QColor, QPalette
 
 from src.telemetry import Telemetry
+from src.ui.gps_graph import GPSGraph
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +65,8 @@ class MainWindow(QMainWindow):
         self.telemetry = telemetry
         self.received_data: Optional[dict] = None
 
+        self.graph_widget = GPSGraph()
+
         # Initialize UI components
         self._create_menu_bar()
         self._create_toolbar()
@@ -77,63 +86,14 @@ class MainWindow(QMainWindow):
 
     def _create_menu_bar(self):
         """Create the main menu bar with actions"""
-        # menubar = self.menuBar()
-
-        # # # File menu
-        # file_menu = menubar.addMenu("&File")
-        # exit_action = QAction("&Exit", self)
-        # exit_action.setShortcut("Ctrl+Q")
-        # exit_action.triggered.connect(self.close)
-        # file_menu.addAction(exit_action)
-
-        # # Edit menu
-        # edit_menu = menubar.addMenu("&Edit")
-        # copy_action = QAction("&Copy", self)
-        # paste_action = QAction("&Paste", self)
-        # edit_menu.addAction(copy_action)
-        # edit_menu.addAction(paste_action)
-
-        # # Help menu
-        # help_menu = menubar.addMenu("&Help")
-        # about_action = QAction("&About", self)
-        # about_action.triggered.connect(self._show_about)
-        # help_menu.addAction(about_action)
         pass
 
     def _create_toolbar(self):
         """Create the toolbar with buttons"""
-        # toolbar = QToolBar("Main Toolbar")
-        # self.addToolBar(toolbar)
-
-        # # Add actions to toolbar
-        # new_action = QAction("New", self)
-        # new_action.setStatusTip("Create a new file")
-        # new_action.triggered.connect(lambda: print("New clicked"))
-
-        # open_action = QAction("Open", self)
-        # open_action.setStatusTip("Open a file")
-        # open_action.triggered.connect(lambda: print("Open clicked"))
-
-        # save_action = QAction("Save", self)
-        # save_action.setStatusTip("Save current file")
-        # save_action.triggered.connect(lambda: print("Save clicked"))
-
-        # toolbar.addAction(new_action)
-        # toolbar.addAction(open_action)
-        # toolbar.addAction(save_action)
-
-        # # Add a separator
-        # toolbar.addSeparator()
-
-        # # Add a button with custom action
-        # btn = QPushButton("Custom Action")
-        # btn.clicked.connect(self._custom_button_clicked)
-        # toolbar.addWidget(btn)
         pass
 
     def _create_status_bar(self):
         """Create the status bar"""
-        # self.statusBar().showMessage("Application ready")
         pass
 
     def _create_central_widget(self):
@@ -156,9 +116,11 @@ class MainWindow(QMainWindow):
         wlayout.addWidget(Color("cyan"))
         w.setLayout(wlayout)
 
+        canvas = self.graph_widget.setup_gps_graph()
+
         q = QWidget()
         qlayout = QHBoxLayout()
-        qlayout.addWidget(Color("red"))
+        qlayout.addWidget(canvas)
         qlayout.setSpacing(0)
         qlayout.setContentsMargins(0, 0, 0, 0)
         q.setLayout(qlayout)
@@ -203,12 +165,24 @@ class MainWindow(QMainWindow):
 
     @QtCore.pyqtSlot(dict)
     def on_new_telemetry(self, telemetry: dict):
-        # logger.info("Received Temp: %s", telemetry["temperature"])
-        self.received_data = telemetry
-        self.temperature.setText(str(telemetry["temperature"]))
-        self.pressure.setText(str(telemetry["pressure"]))
-        self.altitude.setText(str(telemetry["altitude"]))
-        # self.my_label_2.setText(str(telemetry["temperature"]))
+        # Update labels
+        try:
+            self.received_data = telemetry
+            self.temperature.setText(str(telemetry.get("temperature", "")))
+            self.pressure.setText(str(telemetry.get("pressure", "")))
+            self.altitude.setText(
+                str(telemetry.get("altitude", telemetry.get("alt", "")))
+            )
+        except Exception:
+            logger.exception("Failed to update telemetry labels")
+
+        self.graph_widget.update_gps_graph(
+            telemetry.get("latitude", telemetry.get("lat", None)),
+            telemetry.get("longitude", telemetry.get("lon", None)),
+            telemetry.get(
+                "altitude", telemetry.get("alt", telemetry.get("elevation", None))
+            ),
+        )
 
     def _button_clicked(self):
         # """Handle main button click"""
