@@ -13,8 +13,7 @@ dependencies = [
 [tool]
 
 [tool.pyrefly]
-search-paths = ["src"]
-project-includes = ["**/*", "src/**/*"]
+project-includes = ["**/*"]
 project-excludes = [
     "**/node_modules",
     "**/__pycache__",
@@ -24,7 +23,6 @@ project-excludes = [
 
 [tool.uv.workspace]
 members = [
-
 ]
 
 [dependency-groups]

@@ -78,9 +78,9 @@ class GPSGraph:
     def ecef_to_enu(
         self,
         ecef_pts: Sequence[float] | np.ndarray,
-        lat0_deg: float,
-        lon0_deg: float,
-        alt0_m: float,
+        lat0_deg: float | None,
+        lon0_deg: float | None,
+        alt0_m: float | None,
     ) -> np.ndarray:
         if not self.ref_set and (
             lat0_deg is None or lon0_deg is None or alt0_m is None
@@ -96,11 +96,33 @@ class GPSGraph:
             raise ValueError("ecef_pts must have shape (n,3) or (3,)")
 
         # Reference ECEF (1,3)
-        ref = self.geodetic_to_ecef(lat0_deg, lon0_deg, alt0_m)[0]
+        # If any of the provided reference values are None, fall back to stored reference values.
+        if lat0_deg is None:
+            if self.ref_lat is None:
+                raise ValueError("Latitude reference is missing.")
+            lat0_val = float(self.ref_lat)
+        else:
+            lat0_val = float(lat0_deg)
+
+        if lon0_deg is None:
+            if self.ref_lon is None:
+                raise ValueError("Longitude reference is missing.")
+            lon0_val = float(self.ref_lon)
+        else:
+            lon0_val = float(lon0_deg)
+
+        if alt0_m is None:
+            if self.ref_alt is None:
+                raise ValueError("Altitude reference is missing.")
+            alt0_val = float(self.ref_alt)
+        else:
+            alt0_val = float(alt0_m)
+
+        ref = self.geodetic_to_ecef(lat0_val, lon0_val, alt0_val)[0]
 
         # Precompute trig
-        lat0 = math.radians(float(lat0_deg))
-        lon0 = math.radians(float(lon0_deg))
+        lat0 = math.radians(lat0_val)
+        lon0 = math.radians(lon0_val)
         sin_lat0 = math.sin(lat0)
         cos_lat0 = math.cos(lat0)
         sin_lon0 = math.sin(lon0)

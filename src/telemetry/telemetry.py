@@ -44,10 +44,13 @@ class Telemetry(QtCore.QObject):
         alt = 0.0
         lon = 180.0
         lat = 90.0
+        counter = 0
         while self._running:
             alt += random.uniform(1.0, 2.0)
-            lon += random.uniform(0, 0.0001)
-            lat += random.uniform(0, 0.0001)
+            lon += random.uniform(-0.0001, 0.0001)
+            lat += random.uniform(-0.0001, 0.0001)
+            counter += 1
+
             telemetry = {
                 "header": 0xABCD,
                 "timestamp": int(time.time()),
@@ -57,6 +60,7 @@ class Telemetry(QtCore.QObject):
                 "longitude": lon,
                 "latitude": lat,
                 "crc": 0,
+                "log": f"Fake log message #{counter}",
             }
             self.telemetry.emit(telemetry)
             time.sleep(1.0)

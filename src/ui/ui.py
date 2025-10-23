@@ -37,6 +37,7 @@ from PyQt6.QtGui import QColor, QPalette
 
 from src.telemetry import Telemetry
 from src.ui.gps_graph import GPSGraph
+from src.ui.log_viewer import LogViewer
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,7 @@ class MainWindow(QMainWindow):
         self.received_data: Optional[dict] = None
 
         self.graph_widget = GPSGraph()
+        self.log_viewer_widget = LogViewer(max_lines=100)
 
         # Initialize UI components
         self._create_menu_bar()
@@ -133,7 +135,8 @@ class MainWindow(QMainWindow):
 
         dgrid = QWidget()
         dgridlayout = QGridLayout()
-        dgridlayout.setSpacing(0)
+        dgrid.setMinimumHeight(420)
+        dgridlayout.setSpacing(4)
         dgridlayout.setContentsMargins(0, 0, 0, 0)
 
         dgridlayout.addWidget(self.temperature, 1, 0)
@@ -150,9 +153,12 @@ class MainWindow(QMainWindow):
 
         dgrid.setLayout(dgridlayout)
 
+        log_viewer = self.log_viewer_widget.setup_log_viewer()
+
         alayout.addWidget(dgrid)
-        alayout.addWidget(Color("yellow"))
-        alayout.addWidget(Color("orange"))
+        # alayout.addWidget(Color("yellow"))
+        alayout.addWidget(log_viewer)
+        # alayout.addWidget(Color("orange"))
         a.setLayout(alayout)
 
         qlayout.addWidget(a)
@@ -183,6 +189,8 @@ class MainWindow(QMainWindow):
                 "altitude", telemetry.get("alt", telemetry.get("elevation", None))
             ),
         )
+
+        self.log_viewer_widget.add_log(telemetry.get("log", "No log message"))
 
     def _button_clicked(self):
         # """Handle main button click"""
