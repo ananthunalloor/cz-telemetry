@@ -195,18 +195,22 @@ class GPSGraph:
         z = pts[:, 2]
 
         if self._trajectory_line is None:
-            lines = self.ax.plot(x, y, z, color="blue", linewidth=1.5)
+            lines = self.ax.plot(x, y, z, color="blue", linewidth=1)
             if lines:
                 self._trajectory_line = lines[0]
             else:
                 logger.warning("ax.plot returned no lines")
             self._current_point = self.ax.scatter(
-                [x[-1]], [y[-1]], [z[-1]], color="red", s=30
+                [x[-1]],
+                [y[-1]],
+                [z[-1]],
+                color="red",
+                s=10,
             )
-            try:
-                self.ax.legend()
-            except Exception:
-                pass
+            # try:
+            #     self.ax.legend()
+            # except Exception:
+            #     pass
         else:
             try:
                 self._trajectory_line.set_data(x, y)

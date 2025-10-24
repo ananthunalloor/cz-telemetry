@@ -5,6 +5,7 @@ import struct
 import serial
 from typing import Optional
 from PyQt6 import QtCore
+import json
 
 PORT = "COM3"
 BAUD = 115200
@@ -60,8 +61,10 @@ class Telemetry(QtCore.QObject):
                 "longitude": lon,
                 "latitude": lat,
                 "crc": 0,
-                "log": f"Fake log message #{counter}",
+                "log": "",
             }
+            log = json.dumps(telemetry)
+            telemetry["log"] = log
             self.telemetry.emit(telemetry)
             time.sleep(1.0)
 
