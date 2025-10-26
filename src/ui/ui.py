@@ -35,6 +35,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 from PyQt6.QtGui import QColor, QPalette
 
+from src.ui.value_grid import ValueGrid
 from src.telemetry import Telemetry
 from src.ui.gps_graph import GPSGraph
 from src.ui.log_viewer import LogViewer
@@ -68,6 +69,7 @@ class MainWindow(QMainWindow):
 
         self.graph_widget = GPSGraph()
         self.log_viewer_widget = LogViewer(max_lines=100)
+        self.data_grid_widget = ValueGrid()
 
         # Initialize UI components
         self._create_menu_bar()
@@ -101,11 +103,6 @@ class MainWindow(QMainWindow):
     def _create_central_widget(self):
         """Create the main content area"""
         widget = QWidget()
-
-        self.temperature = QLabel("0.0 V")
-        self.pressure = QLabel("0.0 V")
-        self.altitude = QLabel("0.0 V")
-
         outerLayout = QVBoxLayout()
         outerLayout.setSpacing(0)
         outerLayout.setContentsMargins(5, 0, 5, 0)
@@ -133,25 +130,16 @@ class MainWindow(QMainWindow):
         alayout.setSpacing(0)
         alayout.setContentsMargins(0, 0, 0, 0)
 
-        dgrid = QWidget()
-        dgridlayout = QGridLayout()
-        dgrid.setMinimumHeight(420)
-        dgridlayout.setSpacing(4)
-        dgridlayout.setContentsMargins(0, 0, 0, 0)
-
-        dgridlayout.addWidget(self.temperature, 1, 0)
-        dgridlayout.addWidget(self.pressure, 2, 0)
-        dgridlayout.addWidget(self.altitude, 3, 0)
-
-        dgridlayout.addWidget(Color("red"), 1, 1)
-        dgridlayout.addWidget(Color("yellow"), 2, 1)
-        dgridlayout.addWidget(Color("cyan"), 3, 1)
-
-        dgridlayout.addWidget(Color("green"), 1, 2)
-        dgridlayout.addWidget(Color("grey"), 2, 2)
-        dgridlayout.addWidget(Color("orange"), 3, 2)
-
-        dgrid.setLayout(dgridlayout)
+        dgrid = self.data_grid_widget.setup_gps_graph()
+        self.data_grid_widget.set_unit_for_key("A0", "V")
+        self.data_grid_widget.set_unit_for_key("A1", "V")
+        self.data_grid_widget.set_unit_for_key("A2", "V")
+        self.data_grid_widget.set_unit_for_key("B0", "V")
+        self.data_grid_widget.set_unit_for_key("B1", "V")
+        self.data_grid_widget.set_unit_for_key("B2", "V")
+        self.data_grid_widget.set_unit_for_key("C0", "V")
+        self.data_grid_widget.set_unit_for_key("C1", "V")
+        self.data_grid_widget.set_unit_for_key("C2", "V")
 
         log_viewer = self.log_viewer_widget.setup_log_viewer()
 
@@ -173,12 +161,39 @@ class MainWindow(QMainWindow):
     def on_new_telemetry(self, telemetry: dict):
         # Update labels
         try:
-            self.received_data = telemetry
-            self.temperature.setText(str(telemetry.get("temperature", "")))
-            self.pressure.setText(str(telemetry.get("pressure", "")))
-            self.altitude.setText(
-                str(telemetry.get("altitude", telemetry.get("alt", "")))
+            self.data_grid_widget.update_telemetry(
+                "A0", str(telemetry.get("temperature", ""))
             )
+            self.data_grid_widget.update_telemetry(
+                "A1", str(telemetry.get("pressure", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "A2", str(telemetry.get("altitude", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "B0", str(telemetry.get("temperature", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "B1", str(telemetry.get("pressure", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "B2", str(telemetry.get("altitude", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "C0", str(telemetry.get("temperature", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "C1", str(telemetry.get("pressure", ""))
+            )
+            self.data_grid_widget.update_telemetry(
+                "C2", str(telemetry.get("altitude", ""))
+            )
+            # self.received_data = telemetry
+            # self.temperature.setText(str(telemetry.get("temperature", "")))
+            # self.pressure.setText(str(telemetry.get("pressure", "")))
+            # self.altitude.setText(
+            #     str(telemetry.get("altitude", telemetry.get("alt", "")))
+            # )
         except Exception:
             logger.exception("Failed to update telemetry labels")
 
