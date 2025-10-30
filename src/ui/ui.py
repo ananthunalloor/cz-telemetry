@@ -102,6 +102,35 @@ class MainWindow(QMainWindow):
 
     def _create_central_widget(self):
         """Create the main content area"""
+
+        canvas = self.graph_widget.setup_gps_graph()
+        dgrid = self.data_grid_widget.setup_gps_graph()
+        log_viewer = self.log_viewer_widget.setup_log_viewer()
+
+        self.data_grid_widget.set_units(
+            {
+                "A0": "V",
+                "A1": "A",
+                "A2": "%",
+                "B0": "°C",
+                "B1": "mbar",
+                "B2": "m",
+                "C0": "V",
+                "C1": "V",
+                "C2": "V",
+            }
+        )
+
+        # self.data_grid_widget.set_unit_for_key("A0", "V")
+        # self.data_grid_widget.set_unit_for_key("A1", "V")
+        # self.data_grid_widget.set_unit_for_key("A2", "V")
+        # self.data_grid_widget.set_unit_for_key("B0", "V")
+        # self.data_grid_widget.set_unit_for_key("B1", "V")
+        # self.data_grid_widget.set_unit_for_key("B2", "V")
+        # self.data_grid_widget.set_unit_for_key("C0", "V")
+        # self.data_grid_widget.set_unit_for_key("C1", "V")
+        # self.data_grid_widget.set_unit_for_key("C2", "V")
+
         widget = QWidget()
         outerLayout = QVBoxLayout()
         outerLayout.setSpacing(0)
@@ -115,11 +144,14 @@ class MainWindow(QMainWindow):
         wlayout.addWidget(Color("cyan"))
         w.setLayout(wlayout)
 
-        canvas = self.graph_widget.setup_gps_graph()
-
         q = QWidget()
         qlayout = QHBoxLayout()
+        asas = QWidget()
+        asas.setFixedWidth(420)
+
         qlayout.addWidget(canvas)
+        qlayout.addWidget(asas)
+
         qlayout.setSpacing(0)
         qlayout.setContentsMargins(0, 0, 0, 0)
         q.setLayout(qlayout)
@@ -129,19 +161,6 @@ class MainWindow(QMainWindow):
         alayout = QVBoxLayout()
         alayout.setSpacing(0)
         alayout.setContentsMargins(0, 0, 0, 0)
-
-        dgrid = self.data_grid_widget.setup_gps_graph()
-        self.data_grid_widget.set_unit_for_key("A0", "V")
-        self.data_grid_widget.set_unit_for_key("A1", "V")
-        self.data_grid_widget.set_unit_for_key("A2", "V")
-        self.data_grid_widget.set_unit_for_key("B0", "V")
-        self.data_grid_widget.set_unit_for_key("B1", "V")
-        self.data_grid_widget.set_unit_for_key("B2", "V")
-        self.data_grid_widget.set_unit_for_key("C0", "V")
-        self.data_grid_widget.set_unit_for_key("C1", "V")
-        self.data_grid_widget.set_unit_for_key("C2", "V")
-
-        log_viewer = self.log_viewer_widget.setup_log_viewer()
 
         alayout.addWidget(dgrid)
         # alayout.addWidget(Color("yellow"))

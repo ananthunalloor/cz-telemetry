@@ -176,6 +176,7 @@ class ValueGrid:
                 else 0.0
             )
             label.setText(self._format_value_html(key, val))
+            label.setToolTip(str(val))
 
     def _refresh_all_labels(self) -> None:
         for key in list(self._labels.keys()):
